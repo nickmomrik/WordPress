@@ -973,7 +973,6 @@ function wp_old_date_redirect() {
 		$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta, $wpdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_wp_old_date' AND post_name = %s AND meta_value $date_value", $post_type, get_query_var( 'name' ) ) );
 
 		if ( ! $id ) {
-error_log($wpdb->prepare( "SELECT ID FROM $wpdb->posts, $wpdb->postmeta as pm1, $wpdb->postmeta as pm2 WHERE ID = pm1.post_id AND pm1.post_id = pm2.post_id AND post_type = %s AND pm1.meta_key = '_wp_old_slug' AND pm1.meta_value = %s AND pm2.meta_key = '_wp_old_date' AND pm2.meta_value $date_value", $post_type, get_query_var( 'name' ) ));
 			$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts, $wpdb->postmeta as pm1, $wpdb->postmeta as pm2 WHERE ID = pm1.post_id AND pm1.post_id = pm2.post_id AND post_type = %s AND pm1.meta_key = '_wp_old_slug' AND pm1.meta_value = %s AND pm2.meta_key = '_wp_old_date' AND pm2.meta_value $date_value", $post_type, get_query_var( 'name' ) ) );
 
 			if ( ! $id ) {
