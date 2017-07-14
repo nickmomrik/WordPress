@@ -956,28 +956,29 @@ function wp_old_date_redirect() {
 			return;
 		}
 
-		$query = $wpdb->prepare("SELECT post_id FROM $wpdb->postmeta, $wpdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_wp_old_date' AND post_name = %s AND meta_value ", $post_type, get_query_var( 'name' ) );
-
 		$old_date = get_query_var( 'year' );
 		if ( get_query_var( 'monthnum' ) ) {
 			$old_date .= '/' . str_pad( get_query_var( 'monthnum' ), 2, '0', STR_PAD_LEFT );
 			if ( get_query_var( 'day' ) ) {
 				$old_date .= '/' . str_pad( get_query_var( 'day' ), 2, '0', STR_PAD_LEFT );
 
-				$query .= $wpdb->prepare( '= %s', $old_date );
+				$date_value = $wpdb->prepare( '= %s', $old_date );
 			} else {
-				$query .= $wpdb->prepare( 'LIKE %s', "$old_date%" );
+				$date_value = $wpdb->prepare( 'LIKE %s', "$old_date%" );
 			}
 		} else {
-			$query .= $wpdb->prepare( 'LIKE %s', "$old_date%" );
+			$date_value = $wpdb->prepare( 'LIKE %s', "$old_date%" );
 		}
 
-		$id = (int) $wpdb->get_var( $query );
+		$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta, $wpdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_wp_old_date' AND post_name = %s AND meta_value $date_value", $post_type, get_query_var( 'name' ) ) );
 
 		if ( ! $id ) {
-			return;
+error_log($wpdb->prepare( "SELECT ID FROM $wpdb->posts, $wpdb->postmeta as pm1, $wpdb->postmeta as pm2 WHERE ID = pm1.post_id AND pm1.post_id = pm2.post_id AND post_type = %s AND pm1.meta_key = '_wp_old_slug' AND pm1.meta_value = %s AND pm2.meta_key = '_wp_old_date' AND pm2.meta_value $date_value", $post_type, get_query_var( 'name' ) ));
+			$id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts, $wpdb->postmeta as pm1, $wpdb->postmeta as pm2 WHERE ID = pm1.post_id AND pm1.post_id = pm2.post_id AND post_type = %s AND pm1.meta_key = '_wp_old_slug' AND pm1.meta_value = %s AND pm2.meta_key = '_wp_old_date' AND pm2.meta_value $date_value", $post_type, get_query_var( 'name' ) ) );
 
-			// TODO: check for old date + old slug
+			if ( ! $id ) {
+				return;
+			}
 		}
 
 		$link = get_permalink( $id );
